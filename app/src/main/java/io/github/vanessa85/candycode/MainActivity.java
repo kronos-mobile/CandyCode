@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         TextView tvTitle = findViewById(R.id.tvTitle);
         tvTitle.setText("Products");
 
-        ArrayList<String> candyList = new ArrayList<String>();
+        final ArrayList<String> candyList = new ArrayList<String>();
         candyList.add("Tropical Wave");
         candyList.add("Berry Bouncer");
         candyList.add("Grape Gummer");
@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, DetailActivity.class);
+                intent.putExtra(DetailActivity.CANDY_NAME, candyList.get(i));
                 startActivity(intent);
             }
         });
