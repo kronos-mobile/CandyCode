@@ -15,11 +15,13 @@ import com.google.gson.GsonBuilder;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.TextHttpResponseHandler;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
+    private Candy[] candies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +45,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                intent.putExtra(DetailActivity.CANDY_NAME, candyList.get(i));
+                intent.putExtra(DetailActivity.CANDY, candies[i]);
+
                 startActivity(intent);
             }
         });
@@ -60,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("AsyncHttpClient", responseString);
 
                 Gson gson = new GsonBuilder().create();
-                Candy[] candies = gson.fromJson(responseString, Candy[].class);
+                candies = gson.fromJson(responseString, Candy[].class);
                 adapter.clear();
                 for (Candy candy : candies) {
                     adapter.add(candy.name);

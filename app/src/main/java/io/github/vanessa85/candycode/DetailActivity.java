@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 public class DetailActivity extends AppCompatActivity {
-    public static final String CANDY_NAME = "candy_name";
+    public static final String CANDY = "candy";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -14,14 +14,20 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         TextView tvName = findViewById(R.id.tvName);
-        String candyName = "";
+        TextView tvPrice = findViewById(R.id.tvPrice);
+        TextView tvDescription = findViewById(R.id.tvDescription);
 
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(CANDY_NAME)) {
-            candyName = intent.getStringExtra(CANDY_NAME);
+        if (intent != null && intent.hasExtra(CANDY)) {
+            Candy candy = (Candy) intent.getSerializableExtra(CANDY);
+
+            tvName.setText(candy.name);
+            tvPrice.setText(candy.price);
+            tvDescription.setText(candy.description);
         }
 
-        tvName.setText(candyName);
+
+
 
     }
 }
