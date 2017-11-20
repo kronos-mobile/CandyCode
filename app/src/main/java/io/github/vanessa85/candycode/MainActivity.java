@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-                intent.putExtra(DetailActivity.CANDY, candies[i]);
+                intent.putExtra(DetailActivity.POSITION, i);
 
                 startActivity(intent);
             }

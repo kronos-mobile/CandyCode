@@ -1,6 +1,8 @@
 package io.github.vanessa85.candycode;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
@@ -9,7 +11,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 public class DetailActivity extends AppCompatActivity {
-    public static final String CANDY = "candy";
+    public static final String POSITION = "position";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,14 +24,23 @@ public class DetailActivity extends AppCompatActivity {
         ImageView imageView = findViewById(R.id.imageView);
 
         Intent intent = getIntent();
-        if (intent != null && intent.hasExtra(CANDY)) {
-            Candy candy = (Candy) intent.getSerializableExtra(CANDY);
+        if (intent.hasExtra(POSITION)) {
+            int position = intent.getIntExtra(POSITION, 0);
+            CandyDbHelper candyDbHelper = new CandyDbHelper(this);
+            SQLiteDatabase db = candyDbHelper.getWritableDatabase();
+            Cursor cursor = db.rawQuery("SELECT * FROM candy", null);
+            cursor.moveToPosition(position);
 
-            tvName.setText(candy.name);
-            tvPrice.setText(candy.price);
-            tvDescription.setText(candy.description);
+            String candyName = cursor.getString(cursor.getColumnIndexOrThrow(CandyContract.CandyEntry.COLUMN_NAME_NAME));
+            String candyPrice = cursor.getString(cursor.getColumnIndexOrThrow(CandyContract.CandyEntry.COLUMN_NAME_PRICE));
+            String candyDescription = cursor.getString(cursor.getColumnIndexOrThrow(CandyContract.CandyEntry.COLUMN_NAME_DESCRIPTION));
+            String candyImage = cursor.getString(cursor.getColumnIndexOrThrow(CandyContract.CandyEntry.COLUMN_NAME_IMAGE));
 
-            Picasso.with(this).load(candy.image).into(imageView);
+
+            tvName.setText(candyName);
+            tvPrice.setText(candyPrice);
+            tvDescription.setText(candyDescription);
+            Picasso.with(this).load(candyImage).into(imageView);
         }
 
     }
