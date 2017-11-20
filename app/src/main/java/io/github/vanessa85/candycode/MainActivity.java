@@ -1,12 +1,15 @@
 package io.github.vanessa85.candycode;
 
+import android.content.ContentValues;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -15,13 +18,12 @@ import com.google.gson.GsonBuilder;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.TextHttpResponseHandler;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-
 import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
     private Candy[] candies;
+    private CandyDbHelper candyDbHelper = new CandyDbHelper(this);
+    private CursorAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,13 +33,10 @@ public class MainActivity extends AppCompatActivity {
         TextView tvTitle = findViewById(R.id.tvTitle);
         tvTitle.setText("Products");
 
-        final ArrayList<String> candyList = new ArrayList<String>();
-        candyList.add("Tropical Wave");
+        SQLiteDatabase db = candyDbHelper.getWritableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM candy", null);
+        adapter = new CandyCursorAdapter(this, cursor);
 
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                R.layout.list_item_candy,
-                R.id.tvCandy,
-                candyList);
 
         ListView lvCandy = findViewById(R.id.lvCandy);
         lvCandy.setAdapter(adapter);
@@ -64,12 +63,28 @@ public class MainActivity extends AppCompatActivity {
 
                 Gson gson = new GsonBuilder().create();
                 candies = gson.fromJson(responseString, Candy[].class);
-                adapter.clear();
-                for (Candy candy : candies) {
-                    adapter.add(candy.name);
-                }
+                addCandiesToDatabase(candies);
+
+                // updating cursor adapter with the latest database entries
+                SQLiteDatabase db = candyDbHelper.getWritableDatabase();
+                Cursor cursor = db.rawQuery("SELECT * FROM candy", null);
+                adapter.changeCursor(cursor);
             }
         });
 
+    }
+
+    public void addCandiesToDatabase(Candy[] candies) {
+        SQLiteDatabase db = candyDbHelper.getWritableDatabase();
+
+        for (Candy candy : candies) {
+            ContentValues values = new ContentValues();
+            values.put(CandyContract.CandyEntry.COLUMN_NAME_NAME, candy.name);
+            values.put(CandyContract.CandyEntry.COLUMN_NAME_PRICE, candy.price);
+            values.put(CandyContract.CandyEntry.COLUMN_NAME_DESCRIPTION, candy.description);
+            values.put(CandyContract.CandyEntry.COLUMN_NAME_IMAGE, candy.image);
+
+            db.insert(CandyContract.CandyEntry.TABLE_NAME, null, values);
+        }
     }
 }
